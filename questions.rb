@@ -79,28 +79,30 @@ class Questions
 
   def save(title, body, author)
     if @id.nil?
-      id = SQLite3::Database.last_insert_row_id
+      id = QuestionsDatabase.instance.last_insert_row_id
       insert_into_database(id, title, body, author)
     else
       update_database(@id, title, body, author)
     end
   end
 
-  def insert_into_database(title, body, author)
-    data = QuestionsDatabase.instance.execute(<<-SQL)
+  def insert_into_database(id, title, body, author)
+    data = QuestionsDatabase.instance.execute(<<-SQL, id: id, title: title, body: body, author: author)
       INSERT INTO
         #{TABLE_NAME}
         ('id', 'title', 'body', 'author')
       VALUES
-        (
-
-        )
-
+        (:id, :title, :body, :author)
     SQL
   end
 
-  def update_database
-    data = QuestionsDatabase.instance.execute(<<-SQL)
+  def update_database(id, title, body, author)
+    data = QuestionsDatabase.instance.execute(<<-SQL, id: id, title: title, body: body, author: author)
+      UPDATE SET
+        #{TABLE_NAME}
+        ('id', 'title', 'body', 'author')
+      VALUES
+        (:id, :title, :body, :author)
     SQL
   end
 
