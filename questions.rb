@@ -1,8 +1,9 @@
 require_relative 'questionsdatabase.rb'
 require_relative 'users.rb'
 require_relative 'questionlikes.rb'
+require "byebug"
 
-class Questions
+class Question
   TABLE_NAME = "questions"
 
   attr_accessor :id, :title, :body, :author
@@ -17,7 +18,7 @@ class Questions
         id = ?
     SQL
     return nil unless data
-    Questions.new(data)
+    Question.new(data)
   end
 
   def self.find_by_author_id(author_id)
@@ -31,12 +32,12 @@ class Questions
     SQL
     return nil unless data
     data.map do |attributes|
-      Questions.new(attributes)
+      Question.new(attributes)
     end
   end
 
   def author
-    data = Users.find_by_id(@author)
+    data = User.find_by_id(@author)
     return nil unless data
     data
   end
@@ -77,10 +78,17 @@ class Questions
     data
   end
 
+  def initialize(attributes)
+    @id = attributes["id"]
+    @title = attributes["title"]
+    @body = attributes["body"]
+    @author = attributes["author"]
+  end
+
   def save(title, body, author)
     if @id.nil?
-      id = QuestionsDatabase.instance.last_insert_row_id
-      insert_into_database(id, title, body, author)
+      @id = QuestionsDatabase.instance.last_insert_row_id
+      insert_into_database(@id, title, body, author)
     else
       update_database(@id, title, body, author)
     end
@@ -98,19 +106,16 @@ class Questions
 
   def update_database(id, title, body, author)
     data = QuestionsDatabase.instance.execute(<<-SQL, id: id, title: title, body: body, author: author)
-      UPDATE SET
+      UPDATE
         #{TABLE_NAME}
-        ('id', 'title', 'body', 'author')
-      VALUES
-        (:id, :title, :body, :author)
+      SET
+        title = :title,
+        body = :body,
+        author = :author
+      WHERE
+        id = :id
     SQL
   end
 
-  def initialize(attributes)
-    @id = attributes["id"]
-    @title = attributes["title"]
-    @body = attributes["body"]
-    @author = attributes["author"]
-  end
 
 end

@@ -4,7 +4,7 @@ require_relative 'replies'
 require 'byebug'
 require_relative 'questionfollows'
 
-class Users
+class User
   TABLE_NAME = "users"
   attr_accessor :id, :fname, :lname
 
@@ -18,7 +18,7 @@ class Users
         id = ?
     SQL
     return nil unless data
-    Users.new(data)
+    User.new(data)
   end
 
   def self.find_by_name(fname, lname)
@@ -31,7 +31,7 @@ class Users
         fname = :fname AND lname = :lname
     SQL
     return nil unless data
-    Users.new(data)
+    User.new(data)
   end
 
   def self.authored_questions(author_id)
